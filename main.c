@@ -24,7 +24,7 @@ int main(void) {
     int i = 0;
     char * deriver ="\n";
 
-    fp = fopen("/home/kirill/programms/c++_ded_classes/c_strings/T.txt", "r");
+    fp = fopen("T.txt", "r");
     fseek(fp, 0L, SEEK_END);
     long int sz = ftell(fp);
     fseek(fp, 0L, SEEK_SET);
@@ -46,7 +46,7 @@ int main(void) {
     qsort(str_array, str_count, sizeof(char *), str_comparator);
 
 
-    wr = fopen("/home/kirill/programms/c++_ded_classes/c_strings/out.txt", "w+");
+    wr = fopen("out.txt", "w+");
     for (int j = 0; j < str_count; ++j) {
         fwrite(str_array[j], 1, strlen(str_array[j]), wr);
         fputc('\n', wr);
