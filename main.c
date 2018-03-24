@@ -2,6 +2,68 @@
 #include <string.h>
 #include <stdlib.h>
 
+const char devider = '\n';
+
+size_t spaces_entrances(const char *buf);
+
+int str_comparator(const void *a, const void *b);
+
+//returns number of chars into file
+size_t sizeof_file(FILE *fp);
+void splitter(char ** str_array, char * buffer);
+
+int main(void) {
+    //fp - file we are reading from
+    //wr - file we are writing into
+    FILE *fp, *wr;
+    fp = fopen("T.txt", "r");
+
+    size_t file_size = sizeof_file(fp);
+
+    //allocate memory with size of file
+    char *buffer = malloc(file_size);
+    if (buffer)
+        fread(buffer, 1, file_size, fp);
+    else
+        printf("Error when allocating the memory");
+
+    //count number of spaces in file (in order to know how much strings in file)
+    size_t str_count = spaces_entrances(buffer);
+
+    //create array of pointers to strings which will be sorted
+    char **str_array = (char **) malloc(sizeof(char *) * str_count);
+
+    //split buffer into strings
+    splitter(str_array, buffer);
+
+    qsort(str_array, str_count, sizeof(char *), str_comparator);
+
+
+    wr = fopen("out.txt", "w");
+    //write a result into output file
+    for (int j = 0; j < str_count; ++j) {
+        int h = fwrite(str_array[j], 1, strlen(str_array[j]), wr);
+        fputc('\n', wr);
+    }
+
+
+//    if (fclose(fp) == EOF)
+//        printf("ERROR");
+//    if (fclose(wr) == EOF)
+//        printf("ERROR");
+    fclose(fp);
+    fclose(wr);
+
+
+    return 0;
+}
+
+
+int str_comparator(const void *a, const void *b) {
+    const char *pa = *(const char **) a;
+    const char *pb = *(const char **) b;
+    return strcasecmp(pa, pb);
+}
 
 
 size_t spaces_entrances(const char *buf) {
@@ -13,77 +75,20 @@ size_t spaces_entrances(const char *buf) {
     return counter;
 }
 
-int str_comparator(const void *a, const void *b) {
-    const char *pa = *(const char **) a;
-    const char *pb = *(const char **) b;
-    return strcasecmp(pa, pb);
+size_t sizeof_file(FILE *fp) {
+    fseek(fp, 0L, SEEK_END);
+    size_t sz = (size_t) ftell(fp);
+    fseek(fp, 0L, SEEK_SET);
+    return sz;
 }
 
-int main(void) {
-    FILE *fp, *wr;
-    int i = 0;
-    char * deriver ="\n";
 
-    fp = fopen("T.txt", "r");
-    fseek(fp, 0L, SEEK_END);
-    long int sz = ftell(fp);
-    fseek(fp, 0L, SEEK_SET);
-    char *buffer = malloc(sz);
-    if (buffer)
-        fread(buffer, 1, sz, fp);
-
-    size_t str_count = spaces_entrances(buffer);
-//    printf("%zu\n", str_count);
-
-    char **str_array = (char **) malloc(sizeof(char *) * str_count);
-    char *tmp = strtok(buffer, deriver);
+void splitter(char ** str_array, char * buffer){
+    int i=0;
+    char *tmp = strtok(buffer, &devider);
     while (tmp != NULL) {
         str_array[i] = tmp;
         ++i;
-        tmp = strtok(NULL, deriver);
+        tmp = strtok(NULL, &devider);
     }
-
-    qsort(str_array, str_count, sizeof(char *), str_comparator);
-
-
-    wr = fopen("out.txt", "w+");
-    for (int j = 0; j < str_count; ++j) {
-        fwrite(str_array[j], 1, strlen(str_array[j]), wr);
-        fputc('\n', wr);
-    }
-
-
-    if (fclose(fp) == EOF)
-        printf("ERROR");
-    if (fclose(wr) == EOF)
-        printf("ERROR");
-
-
-    return 0;
 }
-
-
-//int main (void)
-//{
-//    // Массив со строкой для поиска
-//    char str [30]="test1\n\n\ntest2/test3\ntest4";
-//    // Набор символов, которые должны входить в искомый сегмент
-//    char sep [10]="\n";
-//    // Переменная, в которую будут заноситься начальные адреса частей
-//    // строки str
-//    char *istr;
-//    printf ("Результат разбиения:\n");
-//    // Выделение первой части строки
-//    istr = strtok (str,sep);
-//
-//    // Выделение последующих частей
-//    while (istr != NULL)
-//    {
-//        // Вывод очередной выделенной части
-//        printf ("%s\n",istr);
-//        // Выделение очередной части строки
-//        istr = strtok (NULL,sep);
-//    }
-//
-//    return 0;
-//}
