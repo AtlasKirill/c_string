@@ -2,7 +2,10 @@
 #include <string.h>
 #include <stdlib.h>
 
-const char devider = '\n';
+//it is neccesary to use double quotes,
+//because strtok need a symbol of the end of the string,
+//which is added to the end automatically
+const char *devider = "\n";
 
 size_t spaces_entrances(const char *buf);
 
@@ -10,13 +13,15 @@ int str_comparator(const void *a, const void *b);
 
 //returns number of chars into file
 size_t sizeof_file(FILE *fp);
-void splitter(char ** str_array, char * buffer);
+
+void splitter(char **str_array, char *buffer);
+
 
 int main(void) {
     //fp - file we are reading from
     //wr - file we are writing into
     FILE *fp, *wr;
-    fp = fopen("T.txt", "r");
+    fp = fopen("/home/kirill/programms/c++_ded_classes/c_strings/T.txt", "r");
 
     size_t file_size = sizeof_file(fp);
 
@@ -30,6 +35,7 @@ int main(void) {
     //count number of spaces in file (in order to know how much strings in file)
     size_t str_count = spaces_entrances(buffer);
 
+
     //create array of pointers to strings which will be sorted
     char **str_array = (char **) malloc(sizeof(char *) * str_count);
 
@@ -39,21 +45,19 @@ int main(void) {
     qsort(str_array, str_count, sizeof(char *), str_comparator);
 
 
-    wr = fopen("out.txt", "w");
+    wr = fopen("/home/kirill/programms/c++_ded_classes/c_strings/out.txt", "w");
     //write a result into output file
-    for (int j = 0; j < str_count; ++j) {
-        int h = fwrite(str_array[j], 1, strlen(str_array[j]), wr);
+    int j = 0;
+    for (j = 0; j < str_count; ++j) {
+        size_t h = fwrite(str_array[j], 1, strlen(str_array[j]), wr);
         fputc('\n', wr);
     }
 
 
-//    if (fclose(fp) == EOF)
-//        printf("ERROR");
-//    if (fclose(wr) == EOF)
-//        printf("ERROR");
-    fclose(fp);
-    fclose(wr);
-
+    if (fclose(fp) == EOF)
+        printf("ERROR");
+    if (fclose(wr) == EOF)
+        printf("ERROR");
 
     return 0;
 }
@@ -69,8 +73,15 @@ int str_comparator(const void *a, const void *b) {
 size_t spaces_entrances(const char *buf) {
     size_t counter = 0;
     for (int i = 0; i < strlen(buf); ++i) {
-        if (buf[i] == '\n')
+        if (buf[i] == '\n' && i == strlen(buf) - 1) {
             counter++;
+            continue;
+        }
+        if (buf[i] == '\n') {
+            if (buf[i + 1] == '\n')
+                continue;
+            counter++;
+        }
     }
     return counter;
 }
@@ -83,12 +94,12 @@ size_t sizeof_file(FILE *fp) {
 }
 
 
-void splitter(char ** str_array, char * buffer){
-    int i=0;
-    char *tmp = strtok(buffer, &devider);
+void splitter(char **str_array, char *buffer) {
+    int i = 0;
+    char *tmp = strtok(buffer, devider);
     while (tmp != NULL) {
         str_array[i] = tmp;
         ++i;
-        tmp = strtok(NULL, &devider);
+        tmp = strtok(NULL, devider);
     }
 }
